@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block content %}
+<div style="height: 100vh; margin-top: -4%">
+    <div class="flex-center flex-column">
+        <div class="container animated fadeIn mb-3 col-4">
+            <form method="POST" action="" class="card animated fadeInDown slow">
+                {{ form.hidden_tag() }}
+                <fieldset class="form-group ">
+                    <legend class="border-bottom mb-4 card-header">BOOK</legend>
+                    <div class="form-group">
+                        {{ form.pitchs.label(class="form-control-label") }}
+                        {% if form.pitchs.errors %}
+                        {{ form.email(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.pitchs.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.pitchs(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.date.label(class="form-control-label") }}
+                        {% if form.date.errors %}
+                        {{ form.date(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.date.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.date(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.startTime.label(class="form-control-label") }}
+                        {% if form.startTime.errors %}
+                        {{ form.startTime(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.startTime.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.startTime(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.duration.label(class="form-control-label") }}
+                        {% if form.duration.errors %}
+                        {{ form.duration(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.duration.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.duration(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                  
+                </fieldset>
+                <div>
+                    <div class="form-group lg">
+                        {{ form.submit(class="btn btn-outline-success") }}
+                    </div>
+
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock content %}
+

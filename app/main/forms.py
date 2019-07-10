@@ -1,9 +1,10 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-# from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
+from flask_login import current_user
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, DateField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-# from flaskblog.models import User
+from app.models import User, Pitch, Booking
+from datetime import datetime
 
 
 class RegistrationForm(FlaskForm):
@@ -25,7 +26,7 @@ class RegistrationForm(FlaskForm):
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user:
-            raise ValidationError(
+                    raise ValidationError(
                 'That email is taken. Please choose a different one.')
 
 
@@ -49,24 +50,77 @@ class ContactForm(FlaskForm):
 
 
 
-# class BookmeetingForm(FlaskForm):
-#     title=StringField('Meeting title',validators=[DataRequired()])
-#     rooms=SelectField('Choose room',coerce=int,choices=RoomChoiceIterable())
-#     date=DateField('Choose date', format="%m/%d/%Y",validators=[DataRequired()])
-#     startTime=SelectField('Choose starting time(in 24hr expression)',coerce=int,choices=[(i,i) for i in range(9,19)])
-#     duration=SelectField('Choose duration of the meeting(in hours)',coerce=int,choices=[(i,i) for i in range(1,6)])
-#     participants_user=SelectMultipleField('Choose participants from company',coerce=int,choices=UserChoiceIterable(),option_widget=widgets.CheckboxInput(),widget=widgets.ListWidget(prefix_label=False),validators=[DataRequired()])
-#     participants_partner=SelectMultipleField('Choose participants from partners',coerce=int,choices=PartnerChoiceIterable(),option_widget=widgets.CheckboxInput(),widget=widgets.ListWidget(prefix_label=False))
-#     submit=SubmitField('Book')
+# class UserChoiceIterable(object):
+#     def __iter__(self):
+#         users=User.query.all()
+#         choices=[(user.id,f'{user.fullname}, team {Team.query.filter_by(id=user.teamId).first().teamName}') for user in users] 
+#         choices=[choice for choice in choices if 'admin' not in choice[1]] # do not delete admin
+#         for choice in choices:
+#             yield choice
 
-#     def validate_title(self,title):
-#         meeting=Meeting.query.filter_by(title=self.title.data).first()
-#         if meeting is not None: # username exist
-#             raise ValidationError('Please use another meeting title.')
+# class DeleteuserForm(FlaskForm):
+#     ids=SelectField('Choose User',coerce=int,choices=UserChoiceIterable())
+#     submit=SubmitField('Delete')
+class PitchChoiceIterable(object):
+    def __iter__(self):
+        pitchs=Pitch.query.all()
+        choices=[(pitch.id,pitch.pitchName) for pitch in pitchs] 
+        for choice in choices:
+            yield choice  
 
-#     def validate_date(self,date):
-#         if self.date.data<datetime.datetime.now().date():
-#             raise ValidationError('You can only book for day after today.')
+
+class BookingForm(FlaskForm):
+    pitchs=SelectField('Choose pitch',coerce=int,choices=PitchChoiceIterable())
+    date=DateField('Choose date', format="%m/%d/%Y",validators=[DataRequired()])
+    startTime=SelectField('Choose starting time(in 24hr expression)',coerce=int,choices=[(i,i) for i in range(9,19)])
+    duration=SelectField('Choose duration of the booking(in hours)',coerce=int,choices=[(i,i) for i in range(1,6)])
+    submit=SubmitField('Book')
+    
+    
+    
+    def validate_title(self,title):
+        booking=Booking.query.filter_by(title=self.title.data).first()
+        if booking is not None: # username exist
+            raise ValidationError('Please use another booking title.')
+ 
+    def validate_date(self,date):
+        if self.date.data<datetime.now().date():
+            raise ValidationError('You can only book for day after today.')
+    
+class BookingChoiceIterable(object):
+    def __iter__(self):
+        bookings=Booking.query.filter_by(bookerId=current_user.id).all()
+        choices=[(booking.id,f'{booking.title} in {Pitch.query.filter_by(id=booking.pitchId).first().pitchName} start at {booking.date.date()} from {booking.startTime}') for booking in bookings] 
+        for choice in choices:
+            yield choice
+
+class CancelbookingForm(FlaskForm):
+    #def __init__(self,userId,**kw):
+     #   super(CancelbookingForm, self).__init__(**kw)
+      #  self.name.userId =userId
+    ids=SelectField('Choose booking to cancel',coerce=int,choices=BookingChoiceIterable()) 
+    submit=SubmitField('Cancel') 
+
+class PitchavailableForm(FlaskForm):
+    date=DateField('Choose date', format="%m/%d/%Y",validators=[DataRequired()])
+    startTime=SelectField('Choose starting time(in 24hr expression)',coerce=int,choices=[(i,i) for i in range(9,19)])
+    duration=SelectField('Choose duration of the booking(in hours)',coerce=int,choices=[(i,i) for i in range(1,6)])
+    submit=SubmitField('Check')
+
+
+class PitchoccupationForm(FlaskForm):
+    date=DateField('Choose date', format="%m/%d/%Y",validators=[DataRequired()])
+    submit=SubmitField('Check')
+
+
+
+
+class BookingChoiceAllIterable(object):
+    def __iter__(self):
+        bookings=Booking.query.all()
+        choices=[(booking.id,f'{booking.title} in {Pitch.query.filter_by(id=booking.pitchId).first().pitchName} start at {booking.date.date()} from {booking.startTime}') for booking in bookings] 
+        for choice in choices:
+            yield choice
 
 # class UpdateAccountForm(FlaskForm):
 #     username = StringField('Username',
